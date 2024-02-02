@@ -21,6 +21,17 @@ import { cancelBooking } from "../_actions/cancel-booking";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./ui/alert-dialog";
 
 interface BookingItemProps {
   booking: Prisma.BookingGetPayload<{
@@ -30,6 +41,7 @@ interface BookingItemProps {
     };
   }>;
 }
+
 const BookingItem = ({ booking }: BookingItemProps) => {
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
 
@@ -93,7 +105,7 @@ const BookingItem = ({ booking }: BookingItemProps) => {
         </SheetHeader>
 
         <div className="px-5">
-          <div className="relative h-[180px] w-full my-3 ">
+          <div className="relative h-[180px] w-full mt-6">
             <Image
               src="/barbershop-map.png"
               fill
@@ -104,9 +116,7 @@ const BookingItem = ({ booking }: BookingItemProps) => {
               <Card>
                 <CardContent className="p-3 flex gap-2">
                   <Avatar>
-                    <AvatarImage
-                      src={booking.barbershop.imageUrl}
-                    ></AvatarImage>
+                    <AvatarImage src={booking.barbershop.imageUrl} />
                   </Avatar>
 
                   <div>
@@ -122,7 +132,7 @@ const BookingItem = ({ booking }: BookingItemProps) => {
 
           <Badge
             variant={isBookingConfirmed ? "default" : "secondary"}
-            className="w-fit mt-3 mb-6"
+            className="w-fit my-3"
           >
             {isBookingConfirmed ? "Confirmado" : "Finalizado"}
           </Badge>
@@ -132,6 +142,7 @@ const BookingItem = ({ booking }: BookingItemProps) => {
               <div className="flex justify-between">
                 <h2 className="font-bold">{booking.service.name}</h2>
                 <h3 className="font-bold text-sm">
+                  {" "}
                   {Intl.NumberFormat("pt-BR", {
                     style: "currency",
                     currency: "BRL",
@@ -162,21 +173,47 @@ const BookingItem = ({ booking }: BookingItemProps) => {
 
           <SheetFooter className="flex-row gap-3 mt-6">
             <SheetClose asChild>
-              <Button variant="secondary" className="w-full">
+              <Button className="w-full" variant="secondary">
                 Voltar
               </Button>
             </SheetClose>
-            <Button
-              onClick={handleCancelClick}
-              disabled={!isBookingConfirmed || isDeleteLoading}
-              variant="destructive"
-              className="w-full"
-            >
-              {isDeleteLoading && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              Cancelar Reserva
-            </Button>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  disabled={!isBookingConfirmed || isDeleteLoading}
+                  className="w-full"
+                  variant="destructive"
+                >
+                  Cancelar Reserva
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="w-[90%]">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    Deseja mesmo cancelar essa reserva?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Uma vez cancelada, não será possível reverter essa ação.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter className="flex-row gap-3">
+                  <AlertDialogCancel className="w-full mt-0">
+                    Voltar
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    disabled={isDeleteLoading}
+                    className="w-full"
+                    onClick={handleCancelClick}
+                  >
+                    {isDeleteLoading && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
+                    Confirmar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </SheetFooter>
         </div>
       </SheetContent>
